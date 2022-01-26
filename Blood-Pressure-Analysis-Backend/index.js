@@ -1,110 +1,114 @@
-// Entry Point of the API Server
+let express = require('express');
+let bodyParser = require('body-parser');
+let app = express();
+// let apiRoutes = require("./api-routes");
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(bodyParser.raw());
+const { MongoClient } = require("mongodb");
+app.use(bodyParser.json());
 
-const express = require('express');
+const url = "mongodb+srv://ashish:ashisharora@cluster0.r89am.mongodb.net/BloodPressureAnalysis?retryWrites=true&w=majority"
+const client = new MongoClient(url);
 
-/* Creates an Express application.
-The express() function is a top-level
-function exported by the express module.
-*/
-const app = express();
-// const Pool = require('pg').Pool;
-
-// // const pool = new Pool({
-// // 	user: 'postgres',
-// // 	host: 'localhost',
-// // 	database: 'gfgbackend',
-// // 	password: 'postgres',
-// // 	dialect: 'postgres',
-// // 	port: 5432
-// // });
+let db;
+client.connect(async function (err) {
+    console.log("Connected correctly to server");
+    db = client.db("BloodPressureAnalysis")
+    const col = db.collection("data")
+    // const data = await col.find({}).toArray();
+    // console.log(data)
+    // client.close();
+});
 
 
-// /* To handle the HTTP Methods Body Parser
-// is used, Generally used to extract the
-// entire body portion of an incoming
-// request stream and exposes it on req.body
-// */
+var port = process.env.PORT || 8080;
+app.get('/get-data', async function (req, res) {
+    const col = db.collection("data");
+    const data = await col.find({}).toArray();
+    console.log(data)
+    res.json({
+        status: true,
+        result: data
+    })
+});
+
+app.post('/add-data', async function (req, res) {
+    const col = db.collection("data");
+    console.log(req.body.data);
+    console.log(req.body.date);
+    col.insertOne(
+        {
+            "date": req.body.date,
+            "Blood-Pressure": req.body.data
+        }
+    )
+    res.json({
+        status: true,
+        message: "Insert Successfully"
+    })
+});
+
+
+
+app.listen(port, function () {
+    console.log("Running RestHub on port " + port);
+
+});
+
+
+
+
+// const express = require('express');
+// const app = express();
 // const bodyParser = require('body-parser');
 // app.use(bodyParser.json())
 // app.use(bodyParser.urlencoded({ extended: false }));
+// const { MongoClient } = require("mongodb");
+
+// const url = "mongodb+srv://ashish:ashisharora@cluster0.r89am.mongodb.net/BloodPressureAnalysis?retryWrites=true&w=majority"
+
+// // create client so we connec to database
+/// const client = new MongoClient(url);
+// let db;
+// // run function is used to connect with collection of database to read the data from database
+
+// // call the run function
+// run().catch(console.dir);
 
 
-// // pool.connect((err, client, release) => {
-// // 	if (err) {
-// // 		return console.error(
-// // 			'Error acquiring client', err.stack)
-// // 	}
-// // 	client.query('SELECT NOW()', (err, result) => {
-// // 		release()
-// // 		if (err) {
-// // 			return console.error(
-// // 				'Error executing query', err.stack)
-// // 		}
-// // 		console.log("Connected to Database !")
-// // 	})
-// // })
 
-// // app.get('/testdata', (req, res, next) => {
-// //     console.log("TEST DATA :");
-// //     // pool.query('Select * from test')
-// //         .then(testData => {
-// //         console.log(testData);
-// //         res.send(testData.rows);
-// //     })
-// // })
 
-// // Require the Routes API
-// // Create a Server and run it on the port 3000
-// const server = app.listen(3000, function () {
-//     let host = server.address().address
-//     let port = server.address().port
-// Starting the Server at the port 3000
-// })
+// app.route("/get-data").get(async function (req, res) {
 
-// import the library need to use mongodb
-const { MongoClient } = require("mongodb");
+//     db
+//         .collection("data")
+//         .find({})
+//         .toArray(function (err, result) {
+//             if (err) {
+//                 res.status(400).send("Error fetching listings!");
+//             } else {
+//                 res.json({ status: true, data: result });
+//             }
+//         });
+// });
 
-// Replace the following with your Atlas connection string                                                                                                                                        
-const url = "enter_the_url_here"
+// // const MongoClient = require("mongodb").MongoClient;
+// // const ObjectId = require("mongodb").ObjectID;
+// // app.use(BodyParser.json());
+// app.listen(5000, () => {
+//     console.log("Hello World 5000!");
+// });
 
-// create client so we connec to database
-const client = new MongoClient(url);
 
-// run function is used to connect with collection of database to read the data from database
-async function run() {
-    try {
-        // connect with databaee
-        await client.connect();
-        // print the message that we successfully connected with database
-        console.log("Connected correctly to server");
-        // load the countryDatabase and store in db variable
-        const db = client.db("CountryDatabase")
-        // load the collection named as MyData and store in col variable
-        const col = db.collection("MyData")
-        // use find function to get all the data, then print the data to on console     
-        col.find({}).toArray().then((ans) => { console.log(ans) }).catch();
-        // find one function used to get only one document or data and print it on console
-        const data = await col.findOne()
-        console.log(data)
-
-    }
-    // if we catch error then print the error on console
-    catch (err) {
-        console.log(err.stack);
-    }
-    // at last, we nned to close the client
-    finally {
-        await client.close();
-    }
-}
-// call the run function
-run().catch(console.dir);
-
-const Express = require("express");
-const BodyParser = require("body-parser");
-// const MongoClient = require("mongodb").MongoClient;
-// const ObjectId = require("mongodb").ObjectID;
-var app = Express();
-app.use(BodyParser.json());
-app.use(BodyParser.urlencoded({ extended: true }));
-app.listen(5000, () => { });
+// const { MongoClient } = require('mongodb');
+// const uri = "mongodb+srv://ashish:<ashisharora>@cluster0.r89am.mongodb.net/BloodPressureAnalysis?retryWrites=true&w=majority";
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+// client.connect(async function (err) {
+//     console.log("Connected !!");
+//     const collection = client.db("BloodPressureAnalysis").collection("data");
+//     const filteredDocs = await collection.find({}).toArray();
+//     console.log('Found documents filtered by { a: 3 } =>', filteredDocs);// perform actions on the collection object
+//     client.close();
+// });
