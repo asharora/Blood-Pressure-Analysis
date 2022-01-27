@@ -10,7 +10,7 @@ setInterval(function () {
         )
     };
     console.log(postData);
-    axios.post('http://localhost:8080/add-data',
+    axios.post('http://localhost:5000/add-data',
         postData,
     )
         .then(response => {

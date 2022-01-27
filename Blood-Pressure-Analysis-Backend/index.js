@@ -23,7 +23,7 @@ client.connect(async function (err) {
 });
 
 
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 5000;
 app.get('/get-data', async function (req, res) {
     const col = db.collection("data");
     const data = await col.find({}).toArray();
@@ -41,7 +41,7 @@ app.post('/add-data', async function (req, res) {
     col.insertOne(
         {
             "date": req.body.date,
-            "Blood-Pressure": req.body.data
+            "BloodPressure": req.body.data
         }
     )
     res.json({
