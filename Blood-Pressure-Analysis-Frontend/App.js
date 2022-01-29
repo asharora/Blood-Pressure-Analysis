@@ -57,6 +57,9 @@ const App: () => Node = () => {
           console.log('getting data from axios', response.data);
           // console.log(isLoading);
           var sum = 0;
+          setData((d) => []);
+          setLabel((d) => []);
+
           setLoading(current => !current)
           response.data.result.map((e) => {
             sum += parseFloat(e.BloodPressure, 10);
@@ -73,12 +76,12 @@ const App: () => Node = () => {
           // sum = sum / Label.length;
           console.log(sum);
           setAvg(sum);
-          setTimeout(() => {
-            // this.setState({
-            //   loading: false,
-            //   axiosData: response.data
-            // })
-          }, 5000)
+          // setTimeout(() => {
+          // this.setState({
+          //   loading: false,
+          //   axiosData: response.data
+          // })
+          // }, 5000)
           console.log(Data);
         })
         .catch(error => {
@@ -112,12 +115,12 @@ const App: () => Node = () => {
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
         {/* <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            alignItems: 'center'
-          }}> */}
+           style={{
+             backgroundColor: isDarkMode ? Colors.black : Colors.white,
+             alignItems: 'center'
+           }}> */}
         {/* {/* {Loading ? <ActivityIndicator size="large" color="#0c9" />
-            : <Text>Fetched Data</Text>} */}
+             : <Text>Fetched Data</Text>} */}
         {/* <Text>{Loading ? "Loading..." : null} */}
         {/* </Text> */}
         {/* <Header /> */}
@@ -141,32 +144,32 @@ const App: () => Node = () => {
             }}>
 
             {/* {
-
-              Data.map((e) => <Text>{e + 1}</Text>)
-              // < Text > {Data}</Text>
-
-              // <Text>{Data}</Text>
-              // console.console.log(sum);
-            } */}
+               Data.map((e) => <Text>{e + 1}</Text>)
+               // < Text > {Data}</Text>
+               // <Text>{Data}</Text>
+               // console.console.log(sum);
+             } */}
             {
               <Text style={{
                 fontWeight: "bold",
                 paddingBottom: 10,
                 fontSize: 15
-              }}>Average Blood Pressure : {Avg / Label.length}</Text>
+              }}>Average Blood Pressure : {(Avg / Label.length).toFixed(2)}</Text>
             }
+            {/* <Text>{Label.map((e) => (e + " "))}</Text>
+            <Text>{Data.map((e) => (e + " "))}</Text> */}
             {/* {[
-              Math.random(),
-              Math.random() * 100,
-              Math.random() * 100,
-              Math.random() * 100,
-            ].map((e) => <Text>{e}</Text>)} */}
+               Math.random(),
+               Math.random() * 100,
+               Math.random() * 100,
+               Math.random() * 100,
+             ].map((e) => <Text>{e}</Text>)} */}
             <LineChart
               data={{
-                labels: Label,
+                labels: Label.length == 0 ? ["Jan", "Feb", "Mar", "Apr"] : Label.map((e) => e),
                 datasets: [
                   {
-                    data: [12, 85, 10, 10]
+                    data: Data.length == 0 ? [1, 2, 3, 4] : Data.map((e) => e)
 
                   }
                 ]
