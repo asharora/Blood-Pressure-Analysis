@@ -45,6 +45,9 @@ const App: () => Node = () => {
   const [Data, setData] = useState([]);
   const [Label, setLabel] = useState([]);
   const [Avg, setAvg] = useState(0.0);
+  const [highestRecord, sethighestRecord] = useState(0.0);
+  const [lowestRecord, setlowestRecord] = useState(0.0);
+
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -57,12 +60,21 @@ const App: () => Node = () => {
           console.log('getting data from axios', response.data);
           // console.log(isLoading);
           var sum = 0;
+          var high = 0;
+          var low = 1000;
           setData((d) => []);
           setLabel((d) => []);
 
           setLoading(current => !current)
           response.data.result.map((e) => {
             sum += parseFloat(e.BloodPressure, 10);
+            if (parseFloat(e.BloodPressure, 10) > high) {
+              high = parseFloat(e.BloodPressure, 10);
+            }
+            if (parseFloat(e.BloodPressure, 10) < low) {
+              low = parseFloat(e.BloodPressure, 10);
+            }
+
             console.log(parseFloat(e.BloodPressure, 10));
             setData((d) => [
               ...d,
@@ -76,6 +88,8 @@ const App: () => Node = () => {
           // sum = sum / Label.length;
           console.log(sum);
           setAvg(sum);
+          sethighestRecord(high);
+          setlowestRecord(low);
           // setTimeout(() => {
           // this.setState({
           //   loading: false,
@@ -169,10 +183,23 @@ const App: () => Node = () => {
                 labels: Label.length == 0 ? ["Jan", "Feb", "Mar", "Apr"] : Label.map((e) => e),
                 datasets: [
                   {
-                    data: Data.length == 0 ? [1, 2, 3, 4] : Data.map((e) => e)
+                    data: Data.length == 0 ? [1, 2, 3, 4] : Data.map((e) => e),
+                    color: (opacity = 1) => `rgba(116,213,78,${opacity})`,
+                    strokeWidth: 2,
+                  },
+                  {
+                    data: [5, 8, 6, 9, 8, 2, -2], strokeWidth: 2,
+                    color: (opacity = 1) => `rgba(97,64,248, ${opacity})`, // optional
 
-                  }
-                ]
+                  },
+                  {
+                    data: [9, 4, 7, 8, 2, 4],
+                    strokeWidth: 2,
+                    color: (opacity = 1) => `rgba(248,69,115, ${opacity})`, // optional
+                  },
+
+
+                ], legend: ['Systolic', 'Diastolic', "MAP"],
               }}
               width={Dimensions.get("window").width * 0.96} // from react-native
               height={300}
@@ -180,7 +207,7 @@ const App: () => Node = () => {
               yAxisSuffix="Pa"
               yAxisInterval={1} // optional, defaults to 1
               chartConfig={{
-                backgroundColor: "#e26a00",
+                // backgroundColor: "white",
                 backgroundGradientFrom: "#fb8c00",
                 backgroundGradientTo: "#ffa726",
                 decimalPlaces: 2, // optional, defaults to 2dp

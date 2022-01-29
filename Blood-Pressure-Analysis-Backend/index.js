@@ -1,3 +1,7 @@
+require('dotenv').config({ path: './.env' })
+// console.log("PORT:", process.env.PORT);
+// const url = process.env.DATABASE_URL;
+// console.log("URL:", url);
 let express = require('express');
 let bodyParser = require('body-parser');
 let app = express();
@@ -9,7 +13,7 @@ app.use(bodyParser.raw());
 const { MongoClient } = require("mongodb");
 app.use(bodyParser.json());
 
-const url = "mongodb+srv://ashish:ashisharora@cluster0.r89am.mongodb.net/BloodPressureAnalysis?retryWrites=true&w=majority"
+const url = process.env.DATABASE_URL
 const client = new MongoClient(url);
 
 let db;
@@ -41,7 +45,8 @@ app.post('/add-data', async function (req, res) {
     col.insertOne(
         {
             "date": req.body.date,
-            "BloodPressure": req.body.data
+            "systolic": req.body.systolic,
+            "diastolic": req.body.diastolic
         }
     )
     res.json({

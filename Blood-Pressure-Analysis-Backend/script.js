@@ -5,7 +5,10 @@ setInterval(function () {
     var datetime = new Date();
     var postData = {
         "date": datetime.toISOString(),
-        "data": Math.floor(
+        "systolic": Math.floor(
+            Math.random() * (90) + 10
+        ),
+        "diastolic": Math.floor(
             Math.random() * (90) + 10
         )
     };
