@@ -1,10 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
 
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
@@ -38,16 +31,29 @@ import { Dimensions } from 'react-native';
 import axios from 'axios';
 import { Appbar } from 'react-native-paper';
 import AppBar from './Appbar';
+import moment from 'moment';
+import Chart from './Charts';
+import BloodData from './BloodData';
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [Loading, setLoading] = useState(false);
-  const [Data, setData] = useState([]);
+  const [Data1, setData1] = useState([]);
+  const [Data2, setData2] = useState([]);
+  const [Data3, setData3] = useState([]);
   const [Label, setLabel] = useState([]);
   const [Avg, setAvg] = useState(0.0);
-  const [highestRecord, sethighestRecord] = useState(0.0);
-  const [lowestRecord, setlowestRecord] = useState(0.0);
-
+  const [highestRecordS, sethighestRecordS] = useState(0);
+  const [lowestRecordS, setlowestRecordS] = useState(0);
+  const [highestRecordD, sethighestRecordD] = useState(0);
+  const [lowestRecordD, setlowestRecordD] = useState(0);
+  const [latestDate, setlatestDate] = useState(new Date())
+  const chartConfig = {
+    backgroundGradientFrom: '#fff',
+    backgroundGradientTo: '#fff',
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    strokeWidth: 2
+  };
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -58,176 +64,94 @@ const App: () => Node = () => {
       axios.get("http://192.168.1.5:5000/get-data")
         .then(response => {
           console.log('getting data from axios', response.data);
-          // console.log(isLoading);
           var sum = 0;
-          var high = 0;
-          var low = 1000;
-          setData((d) => []);
+          var high1 = 0;
+          var low1 = 1000;
+          var high2 = 0;
+          var low2 = 1000;
+          setData1((d) => []);
+          setData2((d) => []);
+          setData3((d) => []);
           setLabel((d) => []);
 
           setLoading(current => !current)
-          response.data.result.map((e) => {
-            sum += parseFloat(e.BloodPressure, 10);
-            if (parseFloat(e.BloodPressure, 10) > high) {
-              high = parseFloat(e.BloodPressure, 10);
+          response.data.result.map((e, idx) => {
+            var systolic = parseFloat(e.systolic, 10);
+            var diastolic = parseFloat(e.diastolic, 10);
+
+            sum += parseFloat(e.systolic, 10);
+            if (parseFloat(e.systolic, 10) > high1) {
+              high1 = parseFloat(e.systolic, 10);
             }
-            if (parseFloat(e.BloodPressure, 10) < low) {
-              low = parseFloat(e.BloodPressure, 10);
+            if (parseFloat(e.systolic, 10) < low1) {
+              low1 = parseInt(e.systolic, 10);
+            }
+            if (parseInt(e.diastolic, 10) > high2) {
+              high2 = parseInt(e.diastolic, 10);
+            }
+            if (parseInt(e.systolic, 10) < low2) {
+              low2 = parseInt(e.diastolic, 10);
             }
 
-            console.log(parseFloat(e.BloodPressure, 10));
-            setData((d) => [
+            setData1((d) => [
               ...d,
-              parseFloat(e.BloodPressure, 10),
+              parseFloat(e.systolic, 10),
             ]);
+            setData2((d) => [
+              ...d,
+              parseFloat(e.diastolic, 10),
+            ]);
+            setData3((d) => [
+              ...d,
+              parseFloat(e.systolic, 10) + parseFloat(e.diastolic, 10),
+            ]);
+            var utcDate = e.date;  // ISO-8601 formatted date returned from server
+            var localDate = new Date(utcDate);
+            console.log(idx + "-" + response.data.length - 1);
+            if (idx == response.data.result.length - 1) {
+              setlatestDate(localDate);
+            }
             setLabel((d) => [
               ...d,
-              e.date.split("T")[1].split(".")[0],
+              moment(localDate).format('h:mm:ss a'),
             ]);
           })
-          // sum = sum / Label.length;
-          console.log(sum);
+
           setAvg(sum);
-          sethighestRecord(high);
-          setlowestRecord(low);
-          // setTimeout(() => {
-          // this.setState({
-          //   loading: false,
-          //   axiosData: response.data
-          // })
-          // }, 5000)
-          console.log(Data);
+          sethighestRecordS(high1);
+          setlowestRecordS(low1);
+          sethighestRecordD(high2);
+          setlowestRecordD(low2);
         })
         .catch(error => {
           console.log(error);
         });
-      // fetch('http://localhost:8080/get-data')
-      //   .then((response) => response.json())
-      //   .then((responseJson) => {
-      //     print(responseJson);
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //   });
     }
 
 
     setLoading(current => !current)
-    // console.log("MyData" + Loading);
     getData();
   }, [])
-  // useEffect(() => {
-  //   console.log(Loading);
-  // }, [Loading]);
-  var sum = 0;
+
   return (
 
     <SafeAreaView style={backgroundStyle}>
       <AppBar />
-      {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} /> */}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
-        {/* <View
-           style={{
-             backgroundColor: isDarkMode ? Colors.black : Colors.white,
-             alignItems: 'center'
-           }}> */}
-        {/* {/* {Loading ? <ActivityIndicator size="large" color="#0c9" />
-             : <Text>Fetched Data</Text>} */}
-        {/* <Text>{Loading ? "Loading..." : null} */}
-        {/* </Text> */}
-        {/* <Header /> */}
-        {/* <Text>Hello World</Text> */}
-        {/* <Text>{isLoading}</Text> */}
-        {Loading ? <View style={{
-          width: Dimensions.get("window").width, // from react-native
-          height: Dimensions.get("window").height,
-          backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}><ActivityIndicator size="large" color="#0c9" />
+        {Loading ? <View style={styles.loadingView}><ActivityIndicator size="large" color="#0c9" />
           <Text>Fetching Data</Text>
         </View> :
           <View
             style={{
-              backgroundColor: isDarkMode ? Colors.black : Colors.white,
               paddingLeft: 8,
-              paddingTop: 12
-              // alignItems: 'center'
+              paddingTop: 4
             }}>
+            <Text style={styles.title}>Blood Pressure </Text>
+            <BloodData highestRecordS={highestRecordS} lowestRecordS={lowestRecordS} highestRecordD={highestRecordD} lowestRecordD={lowestRecordD} Data1={Data1} Data2={Data2} Label={Label} Avg={Avg} latestDate={latestDate} />
 
-            {/* {
-               Data.map((e) => <Text>{e + 1}</Text>)
-               // < Text > {Data}</Text>
-               // <Text>{Data}</Text>
-               // console.console.log(sum);
-             } */}
-            {
-              <Text style={{
-                fontWeight: "bold",
-                paddingBottom: 10,
-                fontSize: 15
-              }}>Average Blood Pressure : {(Avg / Label.length).toFixed(2)}</Text>
-            }
-            {/* <Text>{Label.map((e) => (e + " "))}</Text>
-            <Text>{Data.map((e) => (e + " "))}</Text> */}
-            {/* {[
-               Math.random(),
-               Math.random() * 100,
-               Math.random() * 100,
-               Math.random() * 100,
-             ].map((e) => <Text>{e}</Text>)} */}
-            <LineChart
-              data={{
-                labels: Label.length == 0 ? ["Jan", "Feb", "Mar", "Apr"] : Label.map((e) => e),
-                datasets: [
-                  {
-                    data: Data.length == 0 ? [1, 2, 3, 4] : Data.map((e) => e),
-                    color: (opacity = 1) => `rgba(116,213,78,${opacity})`,
-                    strokeWidth: 2,
-                  },
-                  {
-                    data: [5, 8, 6, 9, 8, 2, -2], strokeWidth: 2,
-                    color: (opacity = 1) => `rgba(97,64,248, ${opacity})`, // optional
-
-                  },
-                  {
-                    data: [9, 4, 7, 8, 2, 4],
-                    strokeWidth: 2,
-                    color: (opacity = 1) => `rgba(248,69,115, ${opacity})`, // optional
-                  },
-
-
-                ], legend: ['Systolic', 'Diastolic', "MAP"],
-              }}
-              width={Dimensions.get("window").width * 0.96} // from react-native
-              height={300}
-              // yAxisLabel="$"
-              yAxisSuffix="Pa"
-              yAxisInterval={1} // optional, defaults to 1
-              chartConfig={{
-                // backgroundColor: "white",
-                backgroundGradientFrom: "#fb8c00",
-                backgroundGradientTo: "#ffa726",
-                decimalPlaces: 2, // optional, defaults to 2dp
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                style: {
-                  borderRadius: 16
-                },
-                propsForDots: {
-                  r: "6",
-                  strokeWidth: "2",
-                  stroke: "#ffa726"
-                }
-              }}
-              bezier
-              style={{
-                marginVertical: 8,
-                borderRadius: 16
-              }}
-            />
+            <Chart Label={Label} Data1={Data1} Data2={Data2} Data3={Data3} />
           </View>}
       </ScrollView>
     </SafeAreaView >
@@ -235,22 +159,16 @@ const App: () => Node = () => {
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
+  loadingView: {
+    width: Dimensions.get("window").width, // from react-native
+    height: Dimensions.get("window").height,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }, title: {
+    fontWeight: "bold",
+    marginBottom: 10,
+    paddingTop: 10, fontSize: 20
+  }
 });
 
 export default App;
