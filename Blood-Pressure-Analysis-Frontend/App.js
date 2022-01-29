@@ -36,6 +36,8 @@ import {
 } from 'react-native-chart-kit'
 import { Dimensions } from 'react-native';
 import axios from 'axios';
+import { Appbar } from 'react-native-paper';
+import AppBar from './Appbar';
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -50,7 +52,7 @@ const App: () => Node = () => {
 
   useEffect(() => {
     function getData() {
-      axios.get("http://192.168.1.4:5000/get-data")
+      axios.get("http://192.168.1.5:5000/get-data")
         .then(response => {
           console.log('getting data from axios', response.data);
           // console.log(isLoading);
@@ -58,7 +60,7 @@ const App: () => Node = () => {
           setLoading(current => !current)
           response.data.result.map((e) => {
             sum += parseFloat(e.BloodPressure, 10);
-
+            console.log(parseFloat(e.BloodPressure, 10));
             setData((d) => [
               ...d,
               parseFloat(e.BloodPressure, 10),
@@ -68,6 +70,8 @@ const App: () => Node = () => {
               e.date.split("T")[1].split(".")[0],
             ]);
           })
+          // sum = sum / Label.length;
+          console.log(sum);
           setAvg(sum);
           setTimeout(() => {
             // this.setState({
@@ -75,6 +79,7 @@ const App: () => Node = () => {
             //   axiosData: response.data
             // })
           }, 5000)
+          console.log(Data);
         })
         .catch(error => {
           console.log(error);
@@ -99,8 +104,10 @@ const App: () => Node = () => {
   // }, [Loading]);
   var sum = 0;
   return (
+
     <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <AppBar />
+      {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} /> */}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
@@ -117,7 +124,10 @@ const App: () => Node = () => {
         {/* <Text>Hello World</Text> */}
         {/* <Text>{isLoading}</Text> */}
         {Loading ? <View style={{
+          width: Dimensions.get("window").width, // from react-native
+          height: Dimensions.get("window").height,
           backgroundColor: isDarkMode ? Colors.black : Colors.white,
+          justifyContent: 'center',
           alignItems: 'center'
         }}><ActivityIndicator size="large" color="#0c9" />
           <Text>Fetching Data</Text>
@@ -125,31 +135,46 @@ const App: () => Node = () => {
           <View
             style={{
               backgroundColor: isDarkMode ? Colors.black : Colors.white,
-              alignItems: 'center'
+              paddingLeft: 8,
+              paddingTop: 12
+              // alignItems: 'center'
             }}>
-            {
 
-              < Text > {sum}</Text>
+            {/* {
+
+              Data.map((e) => <Text>{e + 1}</Text>)
+              // < Text > {Data}</Text>
+
+              // <Text>{Data}</Text>
               // console.console.log(sum);
+            } */}
+            {
+              <Text style={{
+                fontWeight: "bold",
+                paddingBottom: 10,
+                fontSize: 15
+              }}>Average Blood Pressure : {Avg / Label.length}</Text>
             }
+            {/* {[
+              Math.random(),
+              Math.random() * 100,
+              Math.random() * 100,
+              Math.random() * 100,
+            ].map((e) => <Text>{e}</Text>)} */}
             <LineChart
               data={{
                 labels: Label,
                 datasets: [
                   {
-                    data: [
-                      Math.random() * 100,
-                      Math.random() * 100,
-                      Math.random() * 100,
-                      Math.random() * 100,
-                    ]
+                    data: [12, 85, 10, 10]
+
                   }
                 ]
               }}
               width={Dimensions.get("window").width * 0.96} // from react-native
               height={300}
               // yAxisLabel="$"
-              // yAxisSuffix="k"
+              yAxisSuffix="Pa"
               yAxisInterval={1} // optional, defaults to 1
               chartConfig={{
                 backgroundColor: "#e26a00",
