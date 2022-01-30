@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './.env' })
+require('dotenv').config({ path: '../.env' })
 // console.log("PORT:", process.env.PORT);
 // const url = process.env.DATABASE_URL;
 // console.log("URL:", url);
