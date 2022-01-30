@@ -17,3 +17,25 @@ const styles = StyleSheet.create({
         textColor: "white"
     }
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
