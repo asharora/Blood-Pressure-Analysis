@@ -103,7 +103,7 @@ const App: () => Node = () => {
             ]);
             setData3((d) => [
               ...d,
-              parseFloat(e.systolic, 10) + parseFloat(e.diastolic, 10),
+              (parseFloat(e.systolic, 10) + 2 * parseFloat(e.diastolic, 10)) / 3,
             ]);
             var utcDate = e.date;  // ISO-8601 formatted date returned from server
             var localDate = new Date(utcDate);
